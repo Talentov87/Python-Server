@@ -1,0 +1,30 @@
+connect ec2
+ssh -i C:/Users/jayar/Documents/python-server-key-pair.pem ec2-user@54.210.243.240
+
+copy files
+scp -i C:/Users/jayar/Documents/python-server-key-pair.pem -r * ec2-user@54.210.243.240:/home/ec2-user/
+
+copy MAIN
+scp -i C:/Users/jayar/Documents/python-server-key-pair.pem -r MAIN ec2-user@54.210.243.240:/home/ec2-user
+
+copy folder
+scp -i C:/Users/jayar/Documents/python-server-key-pair.pem -r my_folder ec2-user@54.210.243.240:/home/ec2-user
+
+copy controller.py
+scp -i C:/Users/jayar/Documents/python-server-key-pair.pem -r controller.py ec2-user@54.210.243.240:/home/ec2-user
+
+run
+gunicorn -w 4 -b 0.0.0.0:5000 MAIN.server:app
+gunicorn -w 1 -b 0.0.0.0:5001 controller:app
+
+stop gunicorn
+pkill -f "gunicorn -w 4 -b 0.0.0.0:5000 MAIN.server:app"
+pkill -f "gunicorn -w 1 -b 0.0.0.0:5001 controller:app"
+
+check running
+pgrep -c -f "gunicorn -w 4 -b 0.0.0.0:5000 MAIN.server:app"
+pgrep -c -f "gunicorn -w 1 -b 0.0.0.0:5001 controller:app"
+
+
+delete all
+rm -rf *
