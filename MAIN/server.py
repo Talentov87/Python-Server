@@ -4,11 +4,14 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 import base64
 import sys
+from flask_cors import CORS
 
 sys.SharedMemory = {}
 
 
 app = Flask(__name__)
+CORS(app)
+
 """
 up cmd
 scp -i C:/Users/HP/Documents/KEYS/jay-key.pem -r D:\SERVER ec2-user@ec2-35-154-184-31.ap-south-1.compute.amazonaws.com:/home/ec2-user/SERVER

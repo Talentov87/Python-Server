@@ -39,3 +39,47 @@ demo = {
 
 def data(body):
     return demo
+import sqlite3
+
+# Connect to SQLite database (or create it if it doesn't exist)
+conn = sqlite3.connect('example.db')
+
+# Create a cursor object to execute SQL commands
+cur = conn.cursor()
+
+# Create a table
+cur.execute('''CREATE TABLE IF NOT EXISTS books
+               (id INTEGER PRIMARY KEY, title TEXT, author TEXT, year INTEGER)''')
+
+def create_book(title, author, year):
+    cur.execute("INSERT INTO books (title, author, year) VALUES (?, ?, ?)", (title, author, year))
+    conn.commit()
+    print("Book created successfully.")
+
+def read_books():
+    cur.execute("SELECT * FROM books")
+    books = cur.fetchall()
+    print("Books:")
+    for book in books:
+        print(book)
+
+def update_book_title(book_id, new_title):
+    cur.execute("UPDATE books SET title = ? WHERE id = ?", (new_title, book_id))
+    conn.commit()
+    print("Book title updated successfully.")
+
+def delete_book(book_id):
+    cur.execute("DELETE FROM books WHERE id = ?", (book_id,))
+    conn.commit()
+    print("Book deleted successfully.")
+
+# Example usage:
+create_book("To Kill a Mockingbird", "Harper Lee", 1960)
+create_book("1984", "George Orwell", 1949)
+read_books()
+update_book_title(1, "New Title for To Kill a Mockingbird")
+delete_book(2)
+read_books()
+
+# Close the connection
+conn.close()

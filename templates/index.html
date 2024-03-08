@@ -58,6 +58,7 @@
         <div>
             <button class="button" id="startBtn">Start</button>
             <button class="button" id="stopBtn">Stop</button>
+            <button class="button" id="restartBtn">Restart</button>
         </div>
         <div style="margin-top: 20px;">
             <label for="fileInput" class="file-upload-label">Choose File</label>
@@ -73,6 +74,10 @@
 
         document.getElementById('stopBtn').addEventListener('click', function() {
             sendRequest('/stop',"GET");
+        });
+
+        document.getElementById('restartBtn').addEventListener('click', function() {
+            sendRequest('/restart',"GET");
         });
 
         document.getElementById('changeCodeBtn').addEventListener('click', function() {

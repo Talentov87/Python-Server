@@ -112,7 +112,7 @@ def extract_zip_():
     
     return jsonify({"status": extract_zip(file)})
 
-@app.route('/restart', methods=['POST'])
+@app.route('/restart', methods=['GET'])
 def restart_server():
     log = ""
     try:
