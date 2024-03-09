@@ -4,7 +4,7 @@ def run():
 
 
     TABLE_NAME = "CVS"
-    Db = "db/cvs.db"
+    Db = "db/CVS.db"
     file_path = "G:/Python/Python-Server/jsons/outputCvs.json"
 
     # Read JSON data from the file
@@ -153,7 +153,6 @@ def run():
     }
 
             
-    TABLE_NAME = "CVS"
 
     import sqlite3
 
@@ -198,7 +197,7 @@ def run():
     for item in data:
         row = []
         for col,typ in column_data_types.items():
-            value = "NULL"
+            value = None
             try:
                 value = item[col]
             except:

@@ -2,7 +2,7 @@ def run():
     import json
     
     TABLE_NAME = "COMPANY"
-    Db = "db/company.db"
+    Db = "db/COMPANY.db"
     file_path = "G:/Python/Python-Server/jsons/outputCompanies.json"
 
     # Read JSON data from the file

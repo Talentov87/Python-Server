@@ -2,7 +2,7 @@
 def run():
     import json
 
-    Db = "db/spoc.db"
+    Db = "db/SPOC.db"
     TABLE_NAME = "SPOC"
     file_path = "G:/Python/Python-Server/jsons/outputSpocs.json"
 
@@ -31,7 +31,7 @@ def run():
         try:
             return item[key]
         except:
-            return "NULL"
+            return None
 
         
 

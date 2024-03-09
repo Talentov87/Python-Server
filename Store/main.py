@@ -30,24 +30,42 @@ firebase_admin.initialize_app(cred)
 # Initialize Firestore client
 db = firestore.client()
 
+# print("USERS".center(20,"-"))
+# import user.step1 as userFetch
+# import user.step2 as userStore
 
-import comp.step1 as compFetch
-import comp.step2 as compStore
-
-compFetch.run(db)
-compStore.run()
-
-
-import cv.step1 as cvFetch
-import cv.step2 as cvStore
-
-cvFetch.run(db)
-cvStore.run()
+# userFetch.run(db)
+# userStore.run()
 
 
-import spoc.step1 as spocFetch
-import spoc.step2 as spocStore
+print("JOBS".center(20,"-"))
+# import job.step1 as jobFetch
+import job.step2 as jobStore
 
-spocFetch.run(db)
-spocStore.run()
+# jobFetch.run(db)
+jobStore.run()
+
+
+# print("COMPANY".center(20,"-"))
+# import comp.step1 as compFetch
+# import comp.step2 as compStore
+
+# compFetch.run(db)
+# compStore.run()
+
+
+# print("CVS".center(20,"-"))
+# import cv.step1 as cvFetch
+# import cv.step2 as cvStore
+
+# cvFetch.run(db)
+# cvStore.run()
+
+
+# print("SPOC".center(20,"-"))
+# import spoc.step1 as spocFetch
+# import spoc.step2 as spocStore
+
+# spocFetch.run(db)
+# spocStore.run()
 
