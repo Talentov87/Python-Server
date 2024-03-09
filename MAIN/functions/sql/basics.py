@@ -4,18 +4,24 @@ import json
 def js(resp):
     return json.dumps(resp)
 
-def get(TABLE_NAME,body):
+def get(TABLE_NAME,body,localUse=False):
     try:
         cols = body["COLUMNS"]
         cond = body["CONDITION"]
-        return js(functions.sql.handler.select(TABLE_NAME,cols, cond))
+        if(localUse):
+            return functions.sql.handler.select(TABLE_NAME,cols, cond)
+        else:
+            return js(functions.sql.handler.select(TABLE_NAME,cols, cond))
     except Exception as e:  
         return "Error : "+str(e)
     
-def count(TABLE_NAME,body):
+def count(TABLE_NAME,body,localUse=False):
     try:
         cond = body["CONDITION"]
-        return js(functions.sql.handler.count(TABLE_NAME, cond))
+        if(localUse):
+            return functions.sql.handler.count(TABLE_NAME, cond)
+        else:
+            return js(functions.sql.handler.count(TABLE_NAME, cond))
     except Exception as e:
         return "Error : "+str(e)
     
