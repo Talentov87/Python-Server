@@ -16,5 +16,3 @@ delete = lambda body:functions.sql.basics.delete(TABLE_NAME,body)
 run = lambda body:functions.sql.basics.run(TABLE_NAME,body)
 def get_columns():return functions.sql.basics.get_columns(TABLE_NAME)
 def pragma():return functions.sql.basics.pragma(TABLE_NAME)
-
-

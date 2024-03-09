@@ -5,20 +5,14 @@ from Crypto.Util.Padding import pad, unpad
 import base64
 import sys
 from flask_cors import CORS
+from flask import Response
+
 
 sys.SharedMemory = {}
 
 
 app = Flask(__name__)
 CORS(app)
-
-"""
-up cmd
-scp -i C:/Users/HP/Documents/KEYS/jay-key.pem -r D:\SERVER ec2-user@ec2-35-154-184-31.ap-south-1.compute.amazonaws.com:/home/ec2-user/SERVER
-
-scp -i C:/Users/HP/Documents/KEYS/jay-key.pem -r D:\SERVER\functions ec2-user@ec2-35-154-184-31.ap-south-1.compute.amazonaws.com:/home/ec2-user/SERVER
-
-"""
 
 SECRET_KEY = b"JAY23_Vt-GcUJ0JKNUglyO7gCuK_87MK"
 valid_keys = ['JY6odVt-GcUJ0JKNUglyO7gCuKO_4T1FZR8rIKznZpg']
@@ -52,12 +46,14 @@ def authenticate(request):
 
 
 sys.SharedMemory["Modules"] = []
+import os
 
 def call_function_from_path(module_path, function, method, data):
     try:
         if(module_path in sys.SharedMemory["Modules"]):
             module = sys.SharedMemory["Modules"][module_path]
         else:
+            print(os.getcwd() + f' functions.{module_path}')
             module = importlib.import_module(f'functions.{module_path}')
             sys.SharedMemory["Modules"].append(module)
 
@@ -79,7 +75,7 @@ def call_function_from_path(module_path, function, method, data):
         else:
             abort(404)
     except (ImportError, AttributeError) as e:
-        return str(e)
+        return (str(e)+"At call_function_from_path")
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -100,7 +96,12 @@ def dynamic_route(path):
 
     method = request.method
     data = request.json if method == 'POST' else None
-    return call_function_from_path(package, function, method, data)
+    
+    result = call_function_from_path(package, function, method, data)
+
+    response = Response(result, content_type="application/json")
+    return response
+
 
 
 if __name__ == "__main__":

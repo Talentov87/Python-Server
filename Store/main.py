@@ -44,6 +44,7 @@ import cv.step2 as cvStore
 cvFetch.run(db)
 cvStore.run()
 
+
 import spoc.step1 as spocFetch
 import spoc.step2 as spocStore
 
