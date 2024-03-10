@@ -45,7 +45,7 @@ def get_job_states_and_spocs_for_all():
             "CONDITION":f"WHERE Comid='{comid}' and Status = '2'"
         },True)
         unset = functions.sql.basics.count("JOBS",{
-            "CONDITION":f"WHERE Comid='{comid}' and Status != '0' and Status != '1' and Status != '2'"
+            "CONDITION":f"WHERE Comid='{comid}' and Status is NULL"
         },True)
         total = functions.sql.basics.count("JOBS",{
             "CONDITION":f"WHERE Comid='{comid}'"
