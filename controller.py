@@ -28,7 +28,8 @@ def start_server(target_file_path = "server"):
         print(f"Already a process is running")
         return False
     try:
-        exe("gunicorn -w 4 -b 0.0.0.0:5000 server:app")
+        exe("gunicorn -w 4 -b 0.0.0.0:5000 --certfile '/home/ubuntu/MAIN/fullchain.pem' --keyfile '/home/ubuntu/MAIN/privkey.pem' server:app")
+        # exe("gunicorn -w 4 -b 0.0.0.0:5000 server:app")
         sys.SharedMemory["is_process_running"]= True;
         return True
     except Exception as e:

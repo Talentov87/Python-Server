@@ -1,6 +1,8 @@
 import functions.sql.handler
 import json
 
+getDb = functions.sql.handler.getDb
+
 def js(resp):
     return json.dumps(resp)
 
@@ -35,11 +37,14 @@ def store(TABLE_NAME,body):
         return "Error : "+str(e)
 
 
-def update(TABLE_NAME,body):
+def update(TABLE_NAME,body,localUse=False):
     try:
         data = body["DATA"]
         cond = body["CONDITION"]
-        return js(functions.sql.handler.update(TABLE_NAME,cond, data))
+        if(localUse):
+            return functions.sql.handler.update(TABLE_NAME,cond, data)
+        else:
+            return js(functions.sql.handler.update(TABLE_NAME,cond, data))
     except Exception as e:  
         return "Error : "+str(e)
     
@@ -52,16 +57,22 @@ def delete(TABLE_NAME,body):
         return "Error : "+str(e)
 
 
-def run(TABLE_NAME,body):
+def run(TABLE_NAME,body,localUse=False):
     try:
         qry = body["QUERY"]
-        return js(functions.sql.handler.direct_query(TABLE_NAME,qry))
+        if(localUse):
+            return functions.sql.handler.direct_query(TABLE_NAME,qry)
+        else:
+            return js(functions.sql.handler.direct_query(TABLE_NAME,qry))
     except Exception as e:
         return "Error : "+str(e)
     
-def get_columns(TABLE_NAME):
+def get_columns(TABLE_NAME,localUse=False):
     try:
-        return js(functions.sql.handler.get_column_names(TABLE_NAME))
+        if(localUse):
+            return functions.sql.handler.get_column_names(TABLE_NAME)
+        else:
+            return js(functions.sql.handler.get_column_names(TABLE_NAME))
     except Exception as e:
         return "Error : "+str(e)
 

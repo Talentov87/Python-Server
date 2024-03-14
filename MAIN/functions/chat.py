@@ -16,14 +16,14 @@ def getLoginOutlook():
 
 def mail(body):
     try:
-        user = body["USER"]
-        if (not (isinstance(user, str)) or (user.strip() == "") or ("/" in user) or ("\\" in user)):
-            return "Invalid User"
+        # user = body["USER"]
+        # if (not (isinstance(user, str)) or (user.strip() == "") or ("/" in user) or ("\\" in user)):
+        #     return "Invalid User"
         mail_to = body["MAIL_TO"]
         subject = body["SUBJECT"]
         body_content = body["BODY"]
 
-        sent = send_outlook_email(user, mail_to, subject, body_content)
+        sent = send_outlook_email(mail_to, subject, body_content)
         return {"is_mail_sent":sent}
     except Exception as e:
         return "Error : "+str(e)
@@ -34,7 +34,7 @@ def stop_email():
     return "Stoped Mailing Service"
 
 
-def send_outlook_email(user, mail_to, subject, body_content):
+def send_outlook_email(mail_to, subject, body_content):
     
     # Create message
     msg = MIMEMultipart()

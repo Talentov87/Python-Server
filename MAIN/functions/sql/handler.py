@@ -63,6 +63,7 @@ def update(TABLE_NAME,condition,data):
         row += 1
         
     try:
+        print(f"UPDATE {TABLE_NAME} SET {upd} WHERE {condition}")
         db.cur.execute(f"UPDATE {TABLE_NAME} SET {upd} WHERE {condition}", values)
         num_updated = db.cur.rowcount
         db.close()
@@ -110,15 +111,15 @@ def delete(TABLE_NAME, cond=""):
         return res
 
 
-def direct_query(TABLE_NAME, query=""):
-    if query.strip().lower().startswith("create table"):
-        # For CREATE TABLE queries
-        return "Restricted Query"
-    elif query.strip().lower().startswith("drop table"):
-        # For CREATE TABLE queries
-        return "Restricted Query"
+def direct_query(DB_PATH, query=""):
+    # if query.strip().lower().startswith("create table"):
+    #     # For CREATE TABLE queries
+    #     return "Restricted Query"
+    # elif query.strip().lower().startswith("drop table"):
+    #     # For CREATE TABLE queries
+    #     return "Restricted Query"
 
-    db = getDb(TABLE_NAME)
+    db = getDb(DB_PATH)
     res = db.exe(query)
     if res == "ok":
         if query.strip().lower().startswith("select"):
