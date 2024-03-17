@@ -9,11 +9,17 @@ from flask import Response
 
 sys.SharedMemory = {}
 
+if("ubuntu" in __file__):
+    sys.IsLive = True
+else:
+    sys.IsLive = False
 
 app = Flask(__name__)
 CORS(app)
 from flask_sslify import SSLify
-sslify = SSLify(app)
+
+if():
+    sslify = SSLify(app)
 
 SECRET_KEY = b"JAY23_Vt-GcUJ0JKNUglyO7gCuK_87MK"
 valid_keys = ['JY6odVt-GcUJ0JKNUglyO7gCuKO_4T1FZR8rIKznZpg']
@@ -106,4 +112,7 @@ def dynamic_route(path):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000, ssl_context=("MAIN/fullchain.pem","MAIN/privkey.pem"))
+    if(sys.IsLive):
+        app.run(host='0.0.0.0', port=5000, ssl_context=("MAIN/fullchain.pem","MAIN/privkey.pem"))
+    else:
+        app.run(host='0.0.0.0', port=5000)#, ssl_context=("MAIN/fullchain.pem","MAIN/privkey.pem"))

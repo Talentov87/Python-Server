@@ -24,31 +24,51 @@ getDb = functions.sql.basics.getDb
 def get_columns():return functions.sql.basics.get_columns(TABLE_NAME)
 def pragma():return functions.sql.basics.pragma(TABLE_NAME)
 
-try:
-    os.mkdir("db")
-except:
-    pass
-
+def mkdir(dirname):
+    try:
+        if(not os.path.isdir(dirname)):
+            os.mkdir(dirname)
+    except:
+        pass
+mkdir("db")
 
 ALLUSERS_QRY = "CREATE TABLE IF NOT EXISTS "+TABLE_NAME+" (id VARCHAR(255) PRIMARY KEY,Email VARCHAR(255),Phone VARCHAR(255),FirstName VARCHAR(255),LastName VARCHAR(255),Photo VARCHAR(255),FullName VARCHAR(255));"
 run(TABLE_NAME,{"QUERY":ALLUSERS_QRY},True)
 
+USER_CHAT_LIST_TABLE_NAME = "USER_CHAT_LIST"
+CHAT_LIST_TABLE_NAME = "CHAT_LIST"
+CHAT_DB = "CHAT_DBS"
+
+class Tab:
+    def __init__(self,user_id):
+        self.USER_ID = user_id
+        self.user_chat_list = CHAT_DB+"/"+self.USER_ID+"/"+USER_CHAT_LIST_TABLE_NAME
+        self.chat_list = CHAT_DB+"/"+self.USER_ID+"/"+CHAT_LIST_TABLE_NAME
+
 def init_user(user_id):
-    USER_CHAT_LIST_TABLE_NAME = user_id + "_USER_CHAT_LIST"
-    CHAT_LIST_TABLE_NAME = user_id + "_CHAT_LIST"
+    # USER_CHAT_LIST_TABLE_NAME = user_id + "_USER_CHAT_LIST"
+    # CHAT_LIST_TABLE_NAME = user_id + "_CHAT_LIST"
+    user = Tab(user_id)
+
+    USER_CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+USER_CHAT_LIST_TABLE_NAME+" (id VARCHAR(255) PRIMARY KEY,UNREAD INTEGER,LASTMESSAGE VARCHAR(255),LASTMESSAGEMS INTEGER);"
+    CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+CHAT_LIST_TABLE_NAME+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage INTEGER,startOn INTEGER,sentOn INTEGER,receivedOn INTEGER,viewedOn INTEGER)"
     
-    USER_CHAT_LIST = "CREATE TABLE IF NOT EXISTS "+USER_CHAT_LIST_TABLE_NAME+" (id VARCHAR(255) PRIMARY KEY,UNREAD INTEGER,LASTMESSAGE VARCHAR(255),LASTMESSAGEMS INTEGER);"
-    CHAT_LIST = "CREATE TABLE IF NOT EXISTS "+CHAT_LIST_TABLE_NAME+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage INTEGER,startOn INTEGER,sentOn INTEGER,receivedOn INTEGER,viewedOn INTEGER)"
-    
-    run(USER_CHAT_LIST_TABLE_NAME,{"QUERY":USER_CHAT_LIST},True)
-    run(CHAT_LIST_TABLE_NAME,{"QUERY":CHAT_LIST},True)
+    mkdir("db")
+    mkdir("db/"+CHAT_DB)
+    mkdir("db/"+CHAT_DB+"/"+user_id)
+
+    run(user.user_chat_list,{"QUERY":USER_CHAT_LIST_QRY},True)
+    run(user.chat_list,{"QUERY":CHAT_LIST_QRY},True)
+
+    return user
 
 
 def get_chat_list(body):
     try:
         user_id = body["UID"]
-        init_user(user_id)
-        List_of_chat_messages = functions.sql.basics.get(user_id+"_CHAT_LIST",{"COLUMNS":"id, mid, type, isStorable, isLarge, previewText, content, from_user, to_user, stage, startOn, sentOn, receivedOn, viewedOn","CONDITION":"WHERE id = '"+body["ID"]+"'"},True)
+        user = init_user(user_id)
+
+        List_of_chat_messages = functions.sql.basics.get(user.chat_list,{"COLUMNS":"id, mid, type, isStorable, isLarge, previewText, content, from_user, to_user, stage, startOn, sentOn, receivedOn, viewedOn","CONDITION":"WHERE id = '"+body["ID"]+"' ORDER BY startOn ASC LIMIT 10 OFFSET (SELECT COUNT(*) FROM "+CHAT_LIST_TABLE_NAME+") - 10"},True)
         return js(List_of_chat_messages)
     except Exception as e:
         return "Error : "+str(e)
@@ -64,8 +84,12 @@ def add_chat_list(body):
         else:
             txt_msg = body["DATA"]["content"]
         
-        run(user_id + "_USER_CHAT_LIST",{"QUERY":"UPDATE "+user_id + "_USER_CHAT_LIST"+" SET UNREAD=0,LASTMESSAGE='"+txt_msg+"',LASTMESSAGEMS="+str(body["DATA"]["startOn"])+" WHERE id='"+body["DATA"]["to_user"]+"'"},True)
-        count = run(body["DATA"]["to_user"] + "_USER_CHAT_LIST",{"QUERY":"UPDATE "+body["DATA"]["to_user"] + "_USER_CHAT_LIST"+" SET UNREAD=UNREAD+1,LASTMESSAGE='"+txt_msg+"',LASTMESSAGEMS="+str(body["DATA"]["startOn"])+" WHERE id='"+user_id+"'"},True)
+        user_from = init_user(user_id)
+        user_to = init_user(body["DATA"]["to_user"])
+
+        
+        run(user_from.user_chat_list,{"QUERY":"UPDATE "+USER_CHAT_LIST_TABLE_NAME+" SET UNREAD=0,LASTMESSAGE='"+txt_msg+"',LASTMESSAGEMS="+str(body["DATA"]["startOn"])+" WHERE id='"+body["DATA"]["to_user"]+"'"},True)
+        count = run(user_to.user_chat_list,{"QUERY":"UPDATE "+USER_CHAT_LIST_TABLE_NAME+" SET UNREAD=UNREAD+1,LASTMESSAGE='"+txt_msg+"',LASTMESSAGEMS="+str(body["DATA"]["startOn"])+" WHERE id='"+user_id+"'"},True)
         if(count == 0):
             add_user_chat_list({
                 "UID":body["DATA"]["to_user"],
@@ -76,16 +100,16 @@ def add_chat_list(body):
                     "LASTMESSAGEMS":body["DATA"]["startOn"]
                 }
             })
-        return js(functions.sql.basics.store(user_id+"_CHAT_LIST",body))
+        return js(functions.sql.basics.store(user_from.chat_list,body))
     except Exception as e:
         return "Error : "+str(e)
     
 def get_user_chat_list(body):
     try:
         user_id = body["UID"]
-        init_user(user_id)
+        user = init_user(user_id)
 
-        List_of_chat_users = functions.sql.basics.get(user_id+"_USER_CHAT_LIST",{"COLUMNS":"UNREAD,LASTMESSAGE,LASTMESSAGEMS,id","CONDITION":""},True)
+        List_of_chat_users = functions.sql.basics.get(user.user_chat_list,{"COLUMNS":"UNREAD,LASTMESSAGE,LASTMESSAGEMS,id","CONDITION":""},True)
 
         columns = List_of_chat_users[0]+functions.sql.basics.get_columns(TABLE_NAME,True)[1:]
 
@@ -108,8 +132,8 @@ def get_user_chat_list(body):
 def add_user_chat_list(body):
     try:
         user_id = body["UID"]
-        init_user(user_id)
-        return js(functions.sql.basics.store(user_id+"_USER_CHAT_LIST",body))
+        user = init_user(user_id)
+        return js(functions.sql.basics.store(user.user_chat_list,body))
     except Exception as e:
         return "Error : "+str(e)
 
@@ -117,8 +141,8 @@ def add_user_chat_list(body):
 def update_user_chat_list(body):
     try:
         user_id = body["UID"]
-        init_user(user_id)
-        return js(functions.sql.basics.update(user_id+"_USER_CHAT_LIST",body,True))
+        user = init_user(user_id)
+        return js(functions.sql.basics.update(user.user_chat_list,body,True))
     except Exception as e:
         return "Error : "+str(e)
 
@@ -147,6 +171,3 @@ def on_user_logged_in(body):
     
 
 
-
-def emailMessage(body):
-    pass

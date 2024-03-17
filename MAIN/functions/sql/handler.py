@@ -29,8 +29,15 @@ import json
 def getDb(TABLE_NAME):
     return SQLite("db/"+TABLE_NAME+".db")
 
+def getTable(TABLE_NAME):
+    if("/" in TABLE_NAME):
+        return TABLE_NAME.split("/")[-1]
+    else:
+        return TABLE_NAME
+    
 def insert(TABLE_NAME,id,data):
     db = getDb(TABLE_NAME)
+    TABLE_NAME = getTable(TABLE_NAME)
     values = tuple()
     cols = ""
     inp = ""
@@ -51,6 +58,7 @@ def insert(TABLE_NAME,id,data):
 
 def update(TABLE_NAME,condition,data):
     db = getDb(TABLE_NAME)
+    TABLE_NAME = getTable(TABLE_NAME)
     values = tuple()
     upd = ""
 
@@ -75,6 +83,7 @@ def update(TABLE_NAME,condition,data):
 
 def select(TABLE_NAME, cols, cond=""):
     db = getDb(TABLE_NAME)
+    TABLE_NAME = getTable(TABLE_NAME)
     res = db.exe(f"SELECT {cols} FROM {TABLE_NAME} {cond}")
     if res == "ok":
         comps = db.cur.fetchall()
@@ -89,6 +98,7 @@ def select(TABLE_NAME, cols, cond=""):
 
 def count(TABLE_NAME, cond=""):
     db = getDb(TABLE_NAME)
+    TABLE_NAME = getTable(TABLE_NAME)
     res = db.exe(f"SELECT COUNT(ID) FROM {TABLE_NAME} {cond}")
     if res == "ok":
         count = db.cur.fetchone()[0]
@@ -101,6 +111,7 @@ def count(TABLE_NAME, cond=""):
 
 def delete(TABLE_NAME, cond=""):
     db = getDb(TABLE_NAME)
+    TABLE_NAME = getTable(TABLE_NAME)
     res = db.exe(f"DELETE FROM {TABLE_NAME} WHERE {cond}")
     if res == "ok":
         num_deleted = db.cur.rowcount
@@ -142,6 +153,7 @@ def direct_query(DB_PATH, query=""):
 
 def get_column_names(TABLE_NAME):
     db = getDb(TABLE_NAME)
+    TABLE_NAME = getTable(TABLE_NAME)
     res = db.exe(f"PRAGMA table_info({TABLE_NAME})")
     if res == "ok":
         columns = [row[1] for row in db.cur.fetchall()]
@@ -154,6 +166,7 @@ def get_column_names(TABLE_NAME):
 
 def pragma(TABLE_NAME):
     db = getDb(TABLE_NAME)
+    TABLE_NAME = getTable(TABLE_NAME)
     res = db.exe(f"PRAGMA table_info({TABLE_NAME})")
     if res == "ok":
         columns = db.cur.fetchall()
