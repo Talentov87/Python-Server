@@ -51,14 +51,15 @@ def init_user(user_id):
     user = Tab(user_id)
 
     USER_CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+USER_CHAT_LIST_TABLE_NAME+" (id VARCHAR(255) PRIMARY KEY,UNREAD INTEGER,LASTMESSAGE VARCHAR(255),LASTMESSAGEMS INTEGER);"
-    CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+CHAT_LIST_TABLE_NAME+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage INTEGER,startOn INTEGER,sentOn INTEGER,receivedOn INTEGER,viewedOn INTEGER)"
+    # CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+CHAT_LIST_TABLE_NAME+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage INTEGER,startOn INTEGER,sentOn INTEGER,receivedOn INTEGER,viewedOn INTEGER)"
     
     mkdir("db")
+    mkdir("db/Conversations")
     mkdir("db/"+CHAT_DB)
     mkdir("db/"+CHAT_DB+"/"+user_id)
 
     run(user.user_chat_list,{"QUERY":USER_CHAT_LIST_QRY},True)
-    run(user.chat_list,{"QUERY":CHAT_LIST_QRY},True)
+    # run(user.chat_list,{"QUERY":CHAT_LIST_QRY},True)
 
     return user
 
@@ -68,7 +69,11 @@ def get_chat_list(body):
         user_id = body["UID"]
         user = init_user(user_id)
 
-        List_of_chat_messages = functions.sql.basics.get(user.chat_list,{"COLUMNS":"id, mid, type, isStorable, isLarge, previewText, content, from_user, to_user, stage, startOn, sentOn, receivedOn, viewedOn","CONDITION":"WHERE id = '"+body["ID"]+"' ORDER BY startOn ASC LIMIT 10 OFFSET (SELECT COUNT(*) FROM "+CHAT_LIST_TABLE_NAME+") - 10"},True)
+        ids = [user_id,body["ID"]]
+        ids.sort()
+        conversation_id =  ids[0]+"_"+ids[1]
+
+        List_of_chat_messages = functions.sql.basics.get("Conversations/"+conversation_id,{"COLUMNS":"id, mid, type, isStorable, isLarge, previewText, content, from_user, to_user, stage, startOn, sentOn, receivedOn, viewedOn","CONDITION":"ORDER BY startOn ASC LIMIT 10 OFFSET (SELECT COUNT(*) FROM "+conversation_id+") - 10"},True)
         return js(List_of_chat_messages)
     except Exception as e:
         return "Error : "+str(e)
@@ -100,7 +105,17 @@ def add_chat_list(body):
                     "LASTMESSAGEMS":body["DATA"]["startOn"]
                 }
             })
-        return js(functions.sql.basics.store(user_from.chat_list,body))
+        
+
+        ids = [user_id,body["DATA"]["to_user"]]
+        ids.sort()
+        conversation_id =  ids[0]+"_"+ids[1]
+        
+        if(not os.path.isfile("db/Conversations/"+conversation_id)):
+            CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+conversation_id+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage INTEGER,startOn INTEGER,sentOn INTEGER,receivedOn INTEGER,viewedOn INTEGER)"
+            run("Conversations/"+conversation_id,{"QUERY":CHAT_LIST_QRY},True)
+
+        return js(functions.sql.basics.store("Conversations/"+conversation_id,body))
     except Exception as e:
         return "Error : "+str(e)
     

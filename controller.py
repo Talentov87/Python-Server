@@ -52,9 +52,13 @@ def start_server1(target_file_path = "server"):
         return False
 
 def stop_server():
+    try:
+        exe("sudo pkill -f 'gunicorn.*server:app'")
+    except:
+        pass
     if sys.SharedMemory["is_process_running"]:
         try:
-            exe("pkill -f \"gunicorn -w 4 -b 0.0.0.0:5000 server:app\"")
+            # exe("pkill -f \"gunicorn -w 4 -b 0.0.0.0:5000 server:app\"")
             sys.SharedMemory["is_process_running"] = False
             return True
         except Exception as e:
