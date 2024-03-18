@@ -1,74 +1,61 @@
-from flask import Flask, abort, request
-import importlib
+from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.middleware.cors import CORSMiddleware
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 import base64
+import importlib
 import sys
-from flask_cors import CORS
-from flask import Response
 
-sys.SharedMemory = {}
+app = FastAPI()
 
-if("ubuntu" in __file__):
-    sys.IsLive = True
-else:
-    sys.IsLive = False
-
-app = Flask(__name__)
-CORS(app)
-from flask_sslify import SSLify
-
-if():
-    sslify = SSLify(app)
+# Allowing CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 SECRET_KEY = b"JAY23_Vt-GcUJ0JKNUglyO7gCuK_87MK"
 valid_keys = ['JY6odVt-GcUJ0JKNUglyO7gCuKO_4T1FZR8rIKznZpg']
-# gAkhJbEBXzR5CVj2rngd9S1kL+FFAGeAGvkmbIx1CUpvshOXceq80P58/qAKAajz
 
-
+# Function to encrypt data using AES
 def encrypt_aes(data, key):
     cipher = AES.new(key, AES.MODE_CBC, iv=key[:16])
     encrypted_data = cipher.encrypt(pad(data.encode('utf-8'), AES.block_size))
     return base64.b64encode(encrypted_data).decode('utf-8')
 
-
+# Function to decrypt data using AES
 def decrypt_aes(encrypted_data, key):
     cipher = AES.new(key, AES.MODE_CBC, iv=key[:16])
     decrypted_data = unpad(cipher.decrypt(
         base64.b64decode(encrypted_data)), AES.block_size)
     return decrypted_data.decode('utf-8')
 
-
 # Function to check authentication
-def authenticate(request):
+def authenticate(request: Request):
     encrypted_key = request.headers.get('X-Encrypted-Key')
 
     if not encrypted_key:
-        abort(401, "Unauthorized: X-Encrypted-Key header is missing")
+        raise HTTPException(status_code=401, detail="Unauthorized: X-Encrypted-Key header is missing")
 
     decrypted_key = decrypt_aes(encrypted_key, SECRET_KEY)
 
     if decrypted_key not in valid_keys:
-        abort(401, "Unauthorized: Invalid key")
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid key")
 
-
+sys.SharedMemory = {}
 sys.SharedMemory["Modules"] = []
-import os
 
+# Function to call function from the given module path
 def call_function_from_path(module_path, function, method, data):
     try:
         if(module_path in sys.SharedMemory["Modules"]):
             module = sys.SharedMemory["Modules"][module_path]
         else:
-            print(os.getcwd() + f' functions.{module_path}')
             module = importlib.import_module(f'functions.{module_path}')
             sys.SharedMemory["Modules"].append(module)
-
-        # try:
-        #     module = importlib.reload(
-        #         importlib.import_module(f'functions.{module_path}'))
-        # except ImportError as e:
-        #     module = importlib.import_module(f'functions.{module_path}')
 
         function_obj = getattr(module, function, None)
 
@@ -78,41 +65,43 @@ def call_function_from_path(module_path, function, method, data):
             elif method == 'POST':
                 return function_obj(data)
             else:
-                abort(400, "Invalid method")
+                raise HTTPException(status_code=400, detail="Invalid method")
         else:
-            abort(404)
+            raise HTTPException(status_code=404)
     except (ImportError, AttributeError) as e:
-        return (str(e)+"At call_function_from_path")
+        return (str(e)+" - At call_function_from_path")
 
-
-@app.route("/", methods=['GET', 'POST'])
+@app.get("/")
+@app.post("/")
 def version():
     return "Hello World! from jay and hari version - 25 November 2023 12:40 AM"
 
-
-@app.route("/<path:path>", methods=['GET', 'POST'])
-def dynamic_route(path):
+@app.get("/{path:path}")
+@app.post("/{path:path}")
+async def dynamic_route(path: str, request: Request):
     authenticate(request)
     parts = path.split('/')
 
     if len(parts) < 2:
-        abort(404)
+        raise HTTPException(status_code=404)
 
     package = '.'.join(parts[:-1])
     function = parts[-1]
 
     method = request.method
-    data = request.json if method == 'POST' else None
-    
+    # data = request.json() if method == 'POST' else None
+    data = await request.json() if method == 'POST' else None
+
     result = call_function_from_path(package, function, method, data)
 
-    response = Response(result, content_type="application/json")
-    return response
-
-
+    return Response(content=result, media_type="application/json")
 
 if __name__ == "__main__":
-    if(sys.IsLive):
-        app.run(host='0.0.0.0', port=5000, ssl_context=("MAIN/fullchain.pem","MAIN/privkey.pem"))
+    import sys
+    is_live = "ubuntu" in sys.argv[0]
+    if is_live:
+        import uvicorn
+        uvicorn.run("server:app", host="0.0.0.0", port=5000, ssl_keyfile="MAIN/privkey.pem", ssl_certfile="MAIN/fullchain.pem")
     else:
-        app.run(host='0.0.0.0', port=5000)#, ssl_context=("MAIN/fullchain.pem","MAIN/privkey.pem"))
+        import uvicorn
+        uvicorn.run("server:app", host="0.0.0.0", port=5000)
