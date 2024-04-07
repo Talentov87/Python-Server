@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+
 import base64
 import importlib
 import sys
+
+
 
 app = FastAPI()
 
@@ -28,10 +32,12 @@ def encrypt_aes(data, key):
 
 # Function to decrypt data using AES
 def decrypt_aes(encrypted_data, key):
-    cipher = AES.new(key, AES.MODE_CBC, iv=key[:16])
-    decrypted_data = unpad(cipher.decrypt(
-        base64.b64decode(encrypted_data)), AES.block_size)
-    return decrypted_data.decode('utf-8')
+    try:
+        cipher = AES.new(key, AES.MODE_CBC, iv=key[:16])
+        decrypted_data = unpad(cipher.decrypt(base64.b64decode(encrypted_data)), AES.block_size)
+        return True,decrypted_data.decode('utf-8')
+    except UnicodeDecodeError:
+        return False,None
 
 # Function to check authentication
 def authenticate(request: Request):
@@ -40,25 +46,29 @@ def authenticate(request: Request):
     if not encrypted_key:
         raise HTTPException(status_code=401, detail="Unauthorized: X-Encrypted-Key header is missing")
 
-    decrypted_key = decrypt_aes(encrypted_key, SECRET_KEY)
+    can_decrypt,decrypted_key = decrypt_aes(encrypted_key, SECRET_KEY)
+
+    if(can_decrypt == False):
+        raise HTTPException(status_code=401, detail="Unauthorized: Invalid key")
 
     if decrypted_key not in valid_keys:
         raise HTTPException(status_code=401, detail="Unauthorized: Invalid key")
 
 sys.SharedMemory = {}
-sys.SharedMemory["Modules"] = []
+sys.SharedMemory["Modules"] = {}
 
 # Function to call function from the given module path
 def call_function_from_path(module_path, function, method, data):
     try:
         if(module_path in sys.SharedMemory["Modules"]):
             module = sys.SharedMemory["Modules"][module_path]
+            # print("Using existing module")
         else:
             module = importlib.import_module(f'functions.{module_path}')
-            sys.SharedMemory["Modules"].append(module)
+            sys.SharedMemory["Modules"][module_path] = module
+            # print("importing module")
 
         function_obj = getattr(module, function, None)
-
         if function_obj is not None and callable(function_obj):
             if method == 'GET':
                 return function_obj()

@@ -71,7 +71,7 @@ def update(TABLE_NAME,condition,data):
         row += 1
         
     try:
-        print(f"UPDATE {TABLE_NAME} SET {upd} WHERE {condition}")
+        # print(f"UPDATE {TABLE_NAME} SET {upd} WHERE {condition}")
         db.cur.execute(f"UPDATE {TABLE_NAME} SET {upd} WHERE {condition}", values)
         num_updated = db.cur.rowcount
         db.close()

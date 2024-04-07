@@ -54,3 +54,43 @@ def job_init_data(body):
     except Exception as e:
         return "Error : "+str(e)
 
+
+def jobs_init_data(body):
+    try:
+        COMID = body["COMID"]
+
+        company = functions.sql.basics.get("COMPANY",{
+            "COLUMNS": "Name",
+            "CONDITION": f"WHERE id = {COMID}"
+        },True)[1][0]
+
+        AllUsers = functions.sql.basics.get("USERS",{
+            "COLUMNS": "id,Name",
+            "CONDITION": ""
+        },True)[1:]
+        
+        AllUserNamesObj = {}
+        for user in AllUsers:
+            AllUserNamesObj[user[0]] = user[1]
+
+        spocs = functions.sql.basics.get("SPOC",{
+            "COLUMNS": "id,NAME,Mail,Comid",
+            "CONDITION":f"WHERE Comid='{COMID}'"
+        },True)[1:]
+
+        
+        # listJobs = functions.sql.basics.get("JOBS",{
+        #     "COLUMNS": "id,Description,Name,Opening,Comid,Closed,Status,UserList,Comment,Spocid,CreatedBy,CreatedOn,CreatedOnMS",
+        #     "CONDITION": "WHERE Comid='"+COMID+"'",
+        # },True)
+
+        return functions.sql.basics.js({
+            "company": company,
+            "COMID": COMID,
+            "spocs": spocs,
+            "AllUserNamesObj": AllUserNamesObj,
+            # "listJobs":listJobs
+        })
+    except Exception as e:
+        return "Error : "+str(e)
+
