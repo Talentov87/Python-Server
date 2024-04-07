@@ -1,8 +1,15 @@
-import sqlite3
+# import sqlite3
+
+import psycopg2
+# Define your PostgreSQL connection string
+DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
+connection_pool = psycopg2.connect(DATABASE_URL)
+
 
 class SQLite:
     def __init__(self,path):
-        self.conn = sqlite3.connect(path)
+        # self.conn = sqlite3.connect(path)
+        self.conn = connection_pool
         self.cur = self.conn.cursor()
     def cur(self):
         return self.cur
@@ -13,21 +20,18 @@ class SQLite:
         except Exception as e:
             return "Error : "+str(e)
     def close(self):
-        # try:
-        #     self.cur.close()
-        # except:
-        #     pass
         try:
             self.conn.commit()
         except:
             pass
-        self.conn.close()
+        # self.conn.close()
+        self.cur.close()
 
-
-import json
+connection = ""
 
 def getDb(TABLE_NAME):
-    return SQLite("db/"+TABLE_NAME+".db")
+    return SQLite(TABLE_NAME)
+    # return SQLite("db/"+TABLE_NAME+".db")
 
 def getTable(TABLE_NAME):
     if("/" in TABLE_NAME):
@@ -43,12 +47,12 @@ def insert(TABLE_NAME,id,data):
     inp = ""
 
     for key,val in data.items():
-        inp += ",?"
+        inp += ",%s"
         values += (val,)
         cols += f",{key}"
         
     try:
-        db.cur.execute(f"INSERT INTO {TABLE_NAME} (id{cols}) VALUES (?{inp})", (id,)+values)
+        db.cur.execute(f"INSERT INTO {TABLE_NAME} (id{cols}) VALUES (%s{inp})", (id,)+values)
         db.close()
         return "ok"
     except Exception as e:
@@ -66,7 +70,7 @@ def update(TABLE_NAME,condition,data):
     for key,val in data.items():
         if row > 0:
             upd+= ","
-        upd += f"{key}=?"
+        upd += f"{key}=%s"
         values += (val,)
         row += 1
         

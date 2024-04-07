@@ -30,42 +30,42 @@ firebase_admin.initialize_app(cred)
 # Initialize Firestore client
 db = firestore.client()
 
-print("USERS".center(20,"-"))
-import user.step1 as userFetch
-import user.step2 as userStore
+# print("USERS".center(20,"-"))
+# import user.step1 as userFetch
+# import user.step2 as userStore
 
-userFetch.run(db)
-userStore.run()
-
-
-print("JOBS".center(20,"-"))
-import job.step1 as jobFetch
-import job.step2 as jobStore
-
-jobFetch.run(db)
-jobStore.run()
+# # userFetch.run(db)
+# userStore.run()
 
 
-print("COMPANY".center(20,"-"))
-import comp.step1 as compFetch
-import comp.step2 as compStore
+# print("JOBS".center(20,"-"))
+# import job.step1 as jobFetch
+# import job.step2 as jobStore
 
-compFetch.run(db)
-compStore.run()
+# # jobFetch.run(db)
+# jobStore.run()
 
 
-print("CVS".center(20,"-"))
-import cv.step1 as cvFetch
-import cv.step2 as cvStore
+# print("COMPANY".center(20,"-"))
+# import comp.step1 as compFetch
+# import comp.step2 as compStore
 
-cvFetch.run(db)
-cvStore.run()
+# # compFetch.run(db)
+# compStore.run()
+
+
+# print("CVS".center(20,"-"))
+# import cv.step1 as cvFetch
+# import cv.step2 as cvStore
+
+# # cvFetch.run(db)
+# cvStore.run()
 
 
 print("SPOC".center(20,"-"))
 import spoc.step1 as spocFetch
 import spoc.step2 as spocStore
 
-spocFetch.run(db)
+# spocFetch.run(db)
 spocStore.run()
 

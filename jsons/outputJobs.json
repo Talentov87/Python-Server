@@ -2041,18 +2041,19 @@
         "CreatedOnMS": "1699026276522"
     },
     {
-        "Closed": 0,
+        "Closed": 2,
         "CreatedBy": "1691134003834",
-        "Description": "jd",
+        "Status": "",
         "CreatedOn": "2023-11-15",
-        "Opening": 10,
+        "Opening": "10",
         "Comid": "1691141275928",
+        "Description": "jd",
         "id": "1700063151697",
-        "UserList": "[\"1691134003834\"]",
         "Comment": "",
-        "CreatedOnMS": "1700063151697",
+        "UserList": "[\"1691134003834\"]",
+        "Spocid": "all",
         "Name": "demo job",
-        "Spocid": "1694258380896"
+        "CreatedOnMS": "1700063151697"
     },
     {
         "Closed": 1,
