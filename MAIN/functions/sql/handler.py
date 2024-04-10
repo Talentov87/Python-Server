@@ -3,6 +3,9 @@
 import psycopg2
 # Define your PostgreSQL connection string
 DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
+DATABASE_URL = "postgresql://jay:1234@15.207.19.99:5432/talentov"
+DATABASE_URL = "postgresql://jay:1234@0.0.0.0:5432/talentov"
+
 connection_pool = psycopg2.connect(DATABASE_URL)
 
 

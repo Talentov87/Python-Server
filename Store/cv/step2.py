@@ -1,6 +1,7 @@
 import psycopg2
 # Define your PostgreSQL connection string
 DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
+DATABASE_URL = "postgresql://jay:1234@15.207.19.99:5432/talentov"
 conn = psycopg2.connect(DATABASE_URL)
 
 
@@ -209,6 +210,7 @@ def run():
     progress_bar = tqdm(total=len(data), desc="Processing", unit="iteration")
 
     i = 0
+    qrss = []
     for item in data:
         row = []
         for col,typ in column_data_types.items():
@@ -227,17 +229,21 @@ def run():
             else:
                 row.append(value)
         try:
-            q1 = f"INSERT INTO {TABLE_NAME} {insqry} VALUES {inp}"
+            q1 = f"INSERT INTO {TABLE_NAME} {insqry} VALUES {inp};"
+            # qrss.append((q1,row))
             cursor.execute(q1,row)
         except Exception as e:
             print(e)
             break
         i+=1
         progress_bar.update(1)
+
     progress_bar.close()
+    # print(len(qrss))
+    # print(qrss)
+    # cursor.executemany(None, qrss)
 
 
     cursor.close()
     conn.commit()
     conn.close()
-

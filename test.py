@@ -1,4 +1,4 @@
-DATABASE_URL="postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
+DATABASE_URL="postgresql://jay:1234@15.207.19.99:5432/talentov"
 
 
 import os
@@ -26,7 +26,7 @@ cur = conn.cursor()
 
 # Execute SQL commands to retrieve the current time and version from PostgreSQL
 
-cur.execute('SELECT * from playing_with_neon')
+cur.execute('SELECT * from helo')
 
 time = cur.fetchall()
 
