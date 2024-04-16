@@ -2,9 +2,15 @@ import functions.sql.handler
 import json
 
 getDb = functions.sql.handler.getDb
+from decimal import Decimal
 
 def js(resp):
-    return json.dumps(resp)
+    try:
+        # Convert Decimal objects to float or int before serializing
+        resp_serialized = json.dumps(resp, default=lambda o: int(o) if o == int(o) else float(o) if isinstance(o, Decimal) else o)
+        return resp_serialized
+    except Exception as e:
+        print(e)
 
 def get(TABLE_NAME,body,localUse=False):
     try:

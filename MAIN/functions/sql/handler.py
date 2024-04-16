@@ -2,11 +2,29 @@
 
 import psycopg2
 # Define your PostgreSQL connection string
-DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
-DATABASE_URL = "postgresql://jay:1234@15.207.19.99:5432/talentov"
-DATABASE_URL = "postgresql://jay:1234@0.0.0.0:5432/talentov"
+# DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
+# DATABASE_URL = "postgresql://jay:1234@15.207.19.99:5432/talentov"
+# DATABASE_URL = "postgresql://jay:1234@0.0.0.0:5432/talentov"
 
-connection_pool = psycopg2.connect(DATABASE_URL)
+DATABASE_URL_Talentov = "postgresql://jay:1234@15.207.19.99:5432/talentov"
+# DATABASE_URL_Talentov = "postgresql://jay:1234@0.0.0.0:5432/talentov"
+
+DATABASE_URL_Virar = "postgresql://jay:1234@15.207.19.99:5432/virardb"
+# DATABASE_URL_Virar = "postgresql://jay:1234@0.0.0.0:5432/VirarDB"
+
+
+import sys
+connection_pool = ""
+
+# Create a connection
+if(sys.PORT_NUMBER == 5000):
+    connection_pool = psycopg2.connect(DATABASE_URL_Talentov)
+elif(sys.PORT_NUMBER == 50087):
+    connection_pool = psycopg2.connect(DATABASE_URL_Virar)
+else:
+    pass
+
+print(sys.PORT_NUMBER,connection_pool)
 
 
 class SQLite:
@@ -161,7 +179,9 @@ def direct_query(DB_PATH, query=""):
 def get_column_names(TABLE_NAME):
     db = getDb(TABLE_NAME)
     TABLE_NAME = getTable(TABLE_NAME)
-    res = db.exe(f"PRAGMA table_info({TABLE_NAME})")
+    # res = db.exe(f"PRAGMA table_info({TABLE_NAME})")
+    q = f"SELECT data_type,column_name FROM information_schema.columns WHERE table_name = '{TABLE_NAME.lower()}';"
+    res = db.exe(q)
     if res == "ok":
         columns = [row[1] for row in db.cur.fetchall()]
         db.close()

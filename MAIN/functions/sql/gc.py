@@ -50,9 +50,11 @@ def init_user(user_id):
     # CHAT_LIST_TABLE_NAME = user_id + "_CHAT_LIST"
     user = Tab(user_id)
 
-    USER_CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+USER_CHAT_LIST_TABLE_NAME+" (id VARCHAR(255) PRIMARY KEY,UNREAD INTEGER,LASTMESSAGE VARCHAR(255),LASTMESSAGEMS INTEGER);"
+    USER_CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+USER_CHAT_LIST_TABLE_NAME+" (id VARCHAR(255) PRIMARY KEY,UNREAD NUMERIC,LASTMESSAGE VARCHAR(255),LASTMESSAGEMS NUMERIC);"
     # CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+CHAT_LIST_TABLE_NAME+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage INTEGER,startOn INTEGER,sentOn INTEGER,receivedOn INTEGER,viewedOn INTEGER)"
     
+    # USER_CHAT_LIST_QRY = "DROP TABLE IF EXISTS "+USER_CHAT_LIST_TABLE_NAME+"";
+
     mkdir("db")
     mkdir("db/Conversations")
     mkdir("db/"+CHAT_DB)
@@ -73,7 +75,15 @@ def get_chat_list(body):
         ids.sort()
         conversation_id =  ids[0]+"_"+ids[1]
 
-        List_of_chat_messages = functions.sql.basics.get("Conversations/"+conversation_id,{"COLUMNS":"id, mid, type, isStorable, isLarge, previewText, content, from_user, to_user, stage, startOn, sentOn, receivedOn, viewedOn","CONDITION":"ORDER BY startOn ASC LIMIT 10 OFFSET (SELECT COUNT(*) FROM "+conversation_id+") - 10"},True)
+        count = functions.sql.basics.count("Conversations/"+conversation_id,{
+            "CONDITION":""
+        },True)
+
+        count -= 10
+
+        count = max(count,0)
+
+        List_of_chat_messages = functions.sql.basics.get("Conversations/"+conversation_id,{"COLUMNS":"id, mid, type, isStorable, isLarge, previewText, content, from_user, to_user, stage, startOn, sentOn, receivedOn, viewedOn","CONDITION":"ORDER BY startOn ASC LIMIT 10 OFFSET "+str(count)},True)
         return js(List_of_chat_messages)
     except Exception as e:
         return "Error : "+str(e)
@@ -112,7 +122,8 @@ def add_chat_list(body):
         conversation_id =  ids[0]+"_"+ids[1]
         
         if(not os.path.isfile("db/Conversations/"+conversation_id)):
-            CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+conversation_id+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage INTEGER,startOn INTEGER,sentOn INTEGER,receivedOn INTEGER,viewedOn INTEGER)"
+            CHAT_LIST_QRY = "CREATE TABLE IF NOT EXISTS "+conversation_id+" (mid VARCHAR(255) PRIMARY KEY, id VARCHAR(255),type VARCHAR(255),isStorable BOOLEAN,isLarge BOOLEAN,previewText TEXT,content TEXT,from_user VARCHAR(255),to_user VARCHAR(255),stage NUMERIC,startOn NUMERIC,sentOn NUMERIC,receivedOn NUMERIC,viewedOn NUMERIC)"
+            # CHAT_LIST_QRY = "DROP TABLE IF EXISTS "+conversation_id
             run("Conversations/"+conversation_id,{"QUERY":CHAT_LIST_QRY},True)
 
         return js(functions.sql.basics.store("Conversations/"+conversation_id,body))
