@@ -4,11 +4,14 @@ from email.mime.multipart import MIMEMultipart
 
 import sys
 
-BOT_MAIL = "Helper.gcc@outlook.com"
+# BOT_MAIL = "Helper.gcc@outlook.com" #spamed
+BOT_MAIL = "helper.vac@outlook.com"
+
+BOT_MAIL_PASS = "Jayaraj@87"
 
 def getLoginOutlook():
-    if("smtpConnectionToOutlook" in sys.SharedMemory):
-        return sys.SharedMemory["smtpConnectionToOutlook"]
+    # if("smtpConnectionToOutlook" in sys.SharedMemory):
+    #     return sys.SharedMemory["smtpConnectionToOutlook"]
     sys.SharedMemory["smtpConnectionToOutlook"] = smtplib.SMTP('smtp-mail.outlook.com', 587)
     sys.SharedMemory["smtpConnectionToOutlook"].starttls()
     sys.SharedMemory["smtpConnectionToOutlook"].login(BOT_MAIL, "Jayaraj@87")

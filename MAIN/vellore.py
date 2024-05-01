@@ -121,7 +121,7 @@ def run(app,port):
         uvicorn.run(app+":app", host="0.0.0.0", port=port)
 
 
-sys.PORT_NUMBER = 50087
+sys.PORT_NUMBER = 50088
 if __name__ == "__main__":
-    run("talentov",sys.PORT_NUMBER)
+    run("vellore",sys.PORT_NUMBER)
     

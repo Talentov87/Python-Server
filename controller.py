@@ -32,12 +32,9 @@ def start_server():
         print("Already a process is running")
         return False
     try:
-        # Start Uvicorn server with appropriate options
-        # config = Config(app="MAIN.server:app", host="0.0.0.0", port=5000)#, ssl_certfile="/home/ubuntu/MAIN/fullchain.pem", ssl_keyfile="/home/ubuntu/MAIN/privkey.pem")
-        # server = Server(config)
-        # server.run()
-        # exe("uvicorn server:app --host 0.0.0.0 --port 5000")
-        exe("uvicorn server:app --host 0.0.0.0 --port 5000 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
+        exe("uvicorn vellore:app --host 0.0.0.0 --port 50088 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
+        exe("uvicorn virar:app --host 0.0.0.0 --port 50087 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
+        exe("uvicorn talentov:app --host 0.0.0.0 --port 5000 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
         sys.SharedMemory["is_process_running"] = True
         return True
     except Exception as e:
@@ -47,7 +44,9 @@ def start_server():
 # Function to stop the FastAPI server
 def stop_server():
     try:
-        exe("sudo pkill -f 'uvicorn.*server:app'")
+        exe("sudo pkill -f 'uvicorn.*vellore:app'")
+        exe("sudo pkill -f 'uvicorn.*virar:app'")
+        exe("sudo pkill -f 'uvicorn.*talentov:app'")
     except:
         pass
     if sys.SharedMemory["is_process_running"]:

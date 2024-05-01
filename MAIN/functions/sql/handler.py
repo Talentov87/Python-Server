@@ -10,10 +10,14 @@ DATABASE_URL_Talentov = "postgresql://jay:1234@15.207.19.99:5432/talentov"
 # DATABASE_URL_Talentov = "postgresql://jay:1234@0.0.0.0:5432/talentov"
 
 DATABASE_URL_Virar = "postgresql://jay:1234@15.207.19.99:5432/virardb"
-# DATABASE_URL_Virar = "postgresql://jay:1234@0.0.0.0:5432/VirarDB"
+# DATABASE_URL_Virar = "postgresql://jay:1234@0.0.0.0:5432/virardb"
+
+DATABASE_URL_Vellore = "postgresql://jay:1234@15.207.19.99:5432/vellore"
+# DATABASE_URL_Vellore = "postgresql://jay:1234@0.0.0.0:5432/vellore"
 
 
 import sys
+
 connection_pool = ""
 
 # Create a connection
@@ -21,6 +25,8 @@ if(sys.PORT_NUMBER == 5000):
     connection_pool = psycopg2.connect(DATABASE_URL_Talentov)
 elif(sys.PORT_NUMBER == 50087):
     connection_pool = psycopg2.connect(DATABASE_URL_Virar)
+elif(sys.PORT_NUMBER == 50088):
+    connection_pool = psycopg2.connect(DATABASE_URL_Vellore)
 else:
     pass
 

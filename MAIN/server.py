@@ -1,5 +1,7 @@
+
 def run(app,port):
     import sys
+    sys.PORT_NUMBER = port
     is_live = "ubuntu" in sys.argv[0]
     if is_live:
         import uvicorn
@@ -9,20 +11,9 @@ def run(app,port):
         uvicorn.run(app+":app", host="0.0.0.0", port=port)
 
 
-import threading
-
-def talentov():
-    run("talentov",5000)
-
-def virar():
-    run("virar",50087)
-
 if __name__ == "__main__":
-    thread1 = threading.Thread(target=talentov)
-    thread2 = threading.Thread(target=virar)
+    pass
+    run("vellore",50088)
+    # run("MAIN.virar",50087)
+    # run("MAIN.talentov",5000)
 
-    thread1.start()
-    thread2.start()
-
-    thread1.join()
-    thread2.join()

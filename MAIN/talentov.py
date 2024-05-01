@@ -104,8 +104,6 @@ async def dynamic_route(path: str, request: Request):
     # data = request.json() if method == 'POST' else None
     data = await request.json() if method == 'POST' else None
 
-    sys.PORT_NUMBER = request.scope.get("server")[1]
-
     result = call_function_from_path(package, function, method, data)
 
     return Response(content=result, media_type="application/json")
@@ -121,5 +119,6 @@ def run(app,port):
         import uvicorn
         uvicorn.run(app+":app", host="0.0.0.0", port=port)
 
-
-run("talentov",5000)
+sys.PORT_NUMBER = 5000
+if __name__ == "__main__":
+    run("talentov",sys.PORT_NUMBER)

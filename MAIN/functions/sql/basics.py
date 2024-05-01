@@ -3,12 +3,27 @@ import json
 
 getDb = functions.sql.handler.getDb
 from decimal import Decimal
+import time
+import uuid
+
+
+def get_current_epoch_time():
+    # Get the current time in seconds since the epoch
+    current_epoch_time = int(time.time())
+    return current_epoch_time
 
 def js(resp):
     try:
         # Convert Decimal objects to float or int before serializing
         resp_serialized = json.dumps(resp, default=lambda o: int(o) if o == int(o) else float(o) if isinstance(o, Decimal) else o)
         return resp_serialized
+    except Exception as e:
+        print(e)
+
+def reverse_js(json_string):
+    try:
+        obj = json.loads(json_string)
+        return obj
     except Exception as e:
         print(e)
 
@@ -88,3 +103,45 @@ def pragma(TABLE_NAME):
     except Exception as e:
         return "Error : "+str(e)
     
+
+def getTokenForData(Data):
+    try:
+        jsonData = js(Data)
+        ID = str(uuid.uuid4())
+
+        store("tokens",{
+            "ID":ID,
+            "DATA": {
+                "Data":jsonData,
+                "expiryEpoch":get_current_epoch_time()+3600 #1 hour expiry
+            }
+        })
+        return ID
+    except Exception as e:
+        return "Error : "+str(e)
+
+
+def getDataForToken(TokenID):
+    try:
+        currentEpoch = get_current_epoch_time()
+
+        tokens = get("tokens",{
+            "COLUMNS": "Data",
+            "CONDITION": f"WHERE ID = '{TokenID}' AND expiryEpoch >= {currentEpoch}"
+        },True)[1:]
+
+        if(len(tokens) == 0):
+            return {
+                "status":"expired"
+            }
+        
+        jsonData = tokens[0][0]
+        Data = reverse_js(jsonData)
+
+        return {
+            "status":"success",
+            "data":Data
+        }
+
+    except Exception as e:
+        return "Error : "+str(e)
