@@ -79,6 +79,8 @@ Do not miss it, Thank You For Registering!
 def get_all_forms(body):
     try:
         token = body["TOKEN"]
+        searchInput = body["SEARCH_INPUT"]
+        searchOn = body["SEARCH_ON"]
 
         resp = functions.sql.basics.getDataForToken(token)
 
@@ -89,10 +91,32 @@ def get_all_forms(body):
             })
         
         # Id ,EMAIL ,NAME ,AGE ,FNAME ,MNAME ,GENDER ,ADDR ,STD ,SEC ,RegisteredTime ,BibNumber 
-        
+        if(searchInput == ""):
+            CONDITION = "ORDER BY bibnumber ASC"
+        else:
+            searchInput = searchInput.replace("'","")
+            Where = ""
+            if(searchOn == "*"):
+                qry = ""
+                for col in ["name","BibNumber","email","address","mobilenum","clubname","coachname"]:
+                    if(col == "BibNumber"):
+                        try:
+                            qry += f"{col} = {int(searchInput)-1000} or "
+                        except:
+                            qry += "false or "
+                    else:
+                        qry += f"{col} ilike '%{searchInput}%' or "
+                Where = qry[:-3]
+            else:
+                if(searchOn == "BibNumber"):
+                    Where = f"{searchOn} = {int(searchInput)-1000}"
+                else:
+                    Where = f"{searchOn} ilike '%{searchInput}%'"
+            # CONDITION = f"WHERE name like '%{searchInput}%' ORDER BY bibnumber ASC"
+            CONDITION = f"WHERE {Where} ORDER BY bibnumber ASC"
         resp = functions.sql.basics.get(TABLE_NAME,{
             "COLUMNS":"id,name,dob,age,gender,tshirtsize,address,mobilenum,email,event,agegroup,bowcat,spotcat,clubname,coachname,RegisteredTime,BibNumber ",
-            "CONDITION": "ORDER BY bibnumber ASC"
+            "CONDITION": CONDITION
         },True)
 
         return functions.sql.basics.js({
