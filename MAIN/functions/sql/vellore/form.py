@@ -75,6 +75,42 @@ Do not miss it, Thank You For Registering!
     except Exception as e:
         return "Error : "+str(e)
     
+def edit(body):
+    try:
+        ID = body["ID"]
+        Details = body["DETAILS"]
+        
+        resp = functions.sql.basics.update(TABLE_NAME,{
+            "CONDITION" : f"id = '{ID}'",
+            "DATA" : Details
+        },True)
+
+
+        try:
+            resp = int(resp)
+            if(resp>1):
+                return functions.sql.basics.js({
+                    "status" : "fail",
+                    "message" : f"There was a id mistake but, still {resp} Records Updated"
+                })
+            elif(resp == 0):
+                return functions.sql.basics.js({
+                    "status" : "fail",
+                    "message" : "ID Not found"
+                })
+            else:#resp == 1
+                return functions.sql.basics.js({
+                    "status" : "success",
+                    "message" : "Record Updated"
+                })
+        except:
+            return functions.sql.basics.js({
+                "status" : "fail",
+                "message" : resp
+            })
+    except Exception as e:
+        return "Error : "+str(e)
+ 
 
 def get_all_forms(body):
     try:

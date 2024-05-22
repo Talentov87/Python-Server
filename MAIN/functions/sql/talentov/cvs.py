@@ -1,27 +1,107 @@
-import psycopg2
-# Define your PostgreSQL connection string
-DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
-DATABASE_URL = "postgresql://jay:1234@3.110.151.202:5432/talentov"
+import os
 
-conn = psycopg2.connect(DATABASE_URL)
+def get_table_name():
+    current_file = os.path.basename(__file__)
+    return current_file.upper().replace(".PY","")
+
+TABLE_NAME = get_table_name()
+
+import functions.sql.basics as base
+
+get = lambda body:base.get(TABLE_NAME,body)
+count = lambda body:base.count(TABLE_NAME,body)
+store = lambda body:base.store(TABLE_NAME,body)
+update = lambda body:base.update(TABLE_NAME,body)
+delete = lambda body:base.delete(TABLE_NAME,body)
+run = lambda body:base.run(TABLE_NAME,body)
+def get_columns():return base.get_columns(TABLE_NAME)
+def pragma():return base.pragma(TABLE_NAME)
 
 
-from tqdm import tqdm
+def cv_details_get(body):
+    candidate_id = body["ID"]
     
-def run():
-    import json
+    cv = base.get(TABLE_NAME,{
+        "COLUMNS":"*",
+        "CONDITION": f"WHERE id = '{candidate_id}'"
+    },True)
+    
+    cv[0] = column_name_conversion(cv[0])
+
+    Cv_Column_Names = cv[0]
+    if(len(cv) == 1):
+        return None
+    Cv_Details = cv[1]
+
+    Comid = Cv_Details[Cv_Column_Names.index("Comid")]
+    Jobid = Cv_Details[Cv_Column_Names.index("Jobid")]
+    Assigned_To_UID = Cv_Details[Cv_Column_Names.index("ASSIGNED_TO")]
+
+    Company_Name = base.get("COMPANY",{
+        "COLUMNS":"Name",
+        "CONDITION":f"WHERE id='{Comid}'"
+    },True)[1][0]
+
+    Job_Role_Name = ""
+    try:
+        Job_Role_Name = base.get("JOBS",{
+            "COLUMNS":"Name",
+            "CONDITION":f"WHERE id='{Jobid}'"
+        },True)[1][0]
+    except:
+        Job_Role_Name = "(Role Not Found)"
+
+    Assigned_To_Detail = base.get("USERS",{
+        "COLUMNS":"Name,Mail",
+        "CONDITION":f"WHERE id='{Assigned_To_UID}'"
+    },True)
+
+    Assigned_To_Name = None
+    Assigned_To_Email = None
+
+    try:
+        Assigned_To_Detail = Assigned_To_Detail[1]
+
+        Assigned_To_Name = Assigned_To_Detail[0]
+        Assigned_To_Email = Assigned_To_Detail[1]
+    except:
+        pass
+
+    Cv_Details_Dict = {}
+    for i in range(len(Cv_Details)):
+        Cv_Details_Dict[Cv_Column_Names[i]] = Cv_Details[i]
+
+    return base.js({
+        "Company_Name":Company_Name,
+        "Job_Role_Name":Job_Role_Name,
+        "Assigned_To_Name":Assigned_To_Name,
+        "Assigned_To_Email":Assigned_To_Email,
+        "Cv_Column_Names":Cv_Column_Names,
+        "Cv_Details":Cv_Details_Dict,
+    })
+
+def search(body):
+    try:
+        rows = base.get(TABLE_NAME,body,True)
+        rows[0] = column_name_conversion(rows[0])
+        return base.js(rows)
+    except Exception as e:
+        return "Error : "+str(e)
+    
 
 
-    TABLE_NAME = "CVS"
-    Db = "db/CVS.db"
-    file_path = "G:/Python/Python-Server/jsons/outputCvs.json"
+def column_name_conversion(columns):
+    try:
+        for i in range(len(columns)) :    
+            ind = BASIC_column_name_lower_case.index(columns[i])
+            columns[i] = BASIC_column_name[ind]
+        return columns
+    except:
+        a = 0
+        a+=23
+        return None
 
-    # Read JSON data from the file
-    with open(file_path, "r") as json_file:
-        data = json.load(json_file)
-
-    # Initialize an empty dictionary to store column names and their data types
-    column_data_types = { 
+BASIC = { 
     "POSITION_SHARED_DATEMS": "int",
     "EXPERIENCE_IN_SAN": "int",
     "CV_SUBMISSION_DATEMS": "int",
@@ -159,95 +239,7 @@ def run():
     "Phase03": "str",
     "PhaseMS13": "int",
     "Phase13": "str"
-    }
+}
 
-            
-
-    import sqlite3
-
-    import os
-
-    # Check if the file exists
-    if os.path.exists(Db):
-        os.remove(Db)
-        print("File "+Db+" has been removed.")
-    else:
-        print("File "+Db+" does not exist.")
-    # Connect to the SQLite database (or create it if it doesn't exist)
-    # conn = sqlite3.connect(Db)
-
-    # Create a cursor object to execute SQL commands
-    cursor = conn.cursor()
-
-    qry = "("
-    insqry = "("
-    inp = ""
-
-    for key,typ in column_data_types.items():
-        insqry += key+","
-
-        if(typ == "int"):
-            qry += f"{key} NUMERIC,"
-        else:
-            qry += f"{key} TEXT,"
-        inp += ",%s"
-
-    inp = "("+inp[1:]+")"
-
-    insqry = insqry[:-1]+")"
-
-    qry += "PRIMARY KEY (id))"
-    # print(qry)
-
-    
-    # q = f"DROP TABLE IF EXISTS {TABLE_NAME};"
-    # cursor.execute(q)
-
-
-    # Create a table if it doesn't already exist
-    q = f"CREATE TABLE IF NOT EXISTS {TABLE_NAME} "+qry+";"
-    cursor.execute(q)
-
-    progress_bar = tqdm(total=len(data), desc="Processing", unit="iteration")
-
-    i = 0
-    qrss = []
-    for item in data:
-        row = []
-        for col,typ in column_data_types.items():
-            value = None
-            try:
-                value = item[col]
-            except:
-                pass
-            if(typ == "int"):
-                if(value == ''):
-                    row.append(None)
-                elif(value =='-'):
-                    row.append(None)
-                else:
-                    row.append(value)
-            else:
-                row.append(value)
-        try:
-            q1 = f"INSERT INTO {TABLE_NAME} {insqry} VALUES {inp};"
-            # qrss.append((q1,row))
-            cursor.execute(q1,row)
-        except Exception as e:
-            print(e)
-            break
-        i+=1
-        progress_bar.update(1)
-
-    progress_bar.close()
-    # print(len(qrss))
-    # print(qrss)
-    # cursor.executemany(None, qrss)
-
-
-    cursor.close()
-    conn.commit()
-    conn.close()
-
-
-run()
+BASIC_column_name = [x for x in BASIC.keys()]
+BASIC_column_name_lower_case = [x.lower() for x in BASIC.keys()]

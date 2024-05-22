@@ -4,15 +4,16 @@ import psycopg2
 # Define your PostgreSQL connection string
 # DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
 # DATABASE_URL = "postgresql://jay:1234@15.207.19.99:5432/talentov"
+# DATABASE_URL = "postgresql://jay:1234@3.110.151.202:5432/talentov"
 # DATABASE_URL = "postgresql://jay:1234@0.0.0.0:5432/talentov"
 
-DATABASE_URL_Talentov = "postgresql://jay:1234@15.207.19.99:5432/talentov"
+DATABASE_URL_Talentov = "postgresql://jay:1234@3.110.151.202:5432/talentov"
 # DATABASE_URL_Talentov = "postgresql://jay:1234@0.0.0.0:5432/talentov"
 
-DATABASE_URL_Virar = "postgresql://jay:1234@15.207.19.99:5432/virardb"
+DATABASE_URL_Virar = "postgresql://jay:1234@3.110.151.202:5432/virardb"
 # DATABASE_URL_Virar = "postgresql://jay:1234@0.0.0.0:5432/virardb"
 
-DATABASE_URL_Vellore = "postgresql://jay:1234@15.207.19.99:5432/vellore"
+DATABASE_URL_Vellore = "postgresql://jay:1234@3.110.151.202:5432/vellore"
 # DATABASE_URL_Vellore = "postgresql://jay:1234@0.0.0.0:5432/vellore"
 
 

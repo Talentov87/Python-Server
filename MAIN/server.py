@@ -13,7 +13,7 @@ def run(app,port):
 
 if __name__ == "__main__":
     pass
-    run("vellore",50088)
-    # run("MAIN.virar",50087)
-    # run("MAIN.talentov",5000)
+    # run("vellore",50088)
+    # run("virar",50087)
+    run("talentov",5000)
 

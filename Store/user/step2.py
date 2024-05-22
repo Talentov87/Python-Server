@@ -1,7 +1,8 @@
 import psycopg2
 # Define your PostgreSQL connection string
 DATABASE_URL = "postgresql://AllData_owner:o8FXzqEfLvB9@ep-divine-bird-a1cvtabe-pooler.ap-southeast-1.aws.neon.tech/AllData?sslmode=require"
-DATABASE_URL = "postgresql://jay:1234@15.207.19.99:5432/talentov"
+DATABASE_URL = "postgresql://jay:1234@3.110.151.202:5432/talentov"
+
 conn = psycopg2.connect(DATABASE_URL)
 
 from tqdm import tqdm
@@ -63,7 +64,6 @@ def run():
     # Create a table if it doesn't already exist
     q = f"CREATE TABLE IF NOT EXISTS {TABLE_NAME} "+qry+";"
     cursor.execute(q)
-
 
     progress_bar = tqdm(total=len(data), desc="Processing", unit="iteration")
         

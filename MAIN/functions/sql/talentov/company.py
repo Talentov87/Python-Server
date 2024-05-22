@@ -11,22 +11,22 @@ def js(resp):
 
 TABLE_NAME = get_table_name()
 
-import functions.sql.basics
+import functions.sql.basics as base
 
-get = lambda body:functions.sql.basics.get(TABLE_NAME,body)
-count = lambda body:functions.sql.basics.count(TABLE_NAME,body)
-store = lambda body:functions.sql.basics.store(TABLE_NAME,body)
-update = lambda body:functions.sql.basics.update(TABLE_NAME,body)
-delete = lambda body:functions.sql.basics.delete(TABLE_NAME,body)
-run = lambda body:functions.sql.basics.run(TABLE_NAME,body)
-def get_columns():return functions.sql.basics.get_columns(TABLE_NAME)
-def pragma():return functions.sql.basics.pragma(TABLE_NAME)
+get = lambda body:base.get(TABLE_NAME,body)
+count = lambda body:base.count(TABLE_NAME,body)
+store = lambda body:base.store(TABLE_NAME,body)
+update = lambda body:base.update(TABLE_NAME,body)
+delete = lambda body:base.delete(TABLE_NAME,body)
+run = lambda body:base.run(TABLE_NAME,body)
+def get_columns():return base.get_columns(TABLE_NAME)
+def pragma():return base.pragma(TABLE_NAME)
 
 
 
 def get_job_states_and_spocs_for_all():
     counts = {}
-    companies = functions.sql.basics.get(TABLE_NAME,{
+    companies = base.get(TABLE_NAME,{
         "COLUMNS": "id",
         "CONDITION": ""
     },True)[1:]
@@ -35,23 +35,23 @@ def get_job_states_and_spocs_for_all():
     for company in companies:
         comid = company[0]
 
-        active = functions.sql.basics.count("JOBS",{
+        active = base.count("JOBS",{
             "CONDITION":f"WHERE Comid='{comid}' and Status = '0'"
         },True)
-        closed = functions.sql.basics.count("JOBS",{
+        closed = base.count("JOBS",{
             "CONDITION":f"WHERE Comid='{comid}' and Status = '1'"
         },True)
-        hold = functions.sql.basics.count("JOBS",{
+        hold = base.count("JOBS",{
             "CONDITION":f"WHERE Comid='{comid}' and Status = '2'"
         },True)
-        unset = functions.sql.basics.count("JOBS",{
+        unset = base.count("JOBS",{
             "CONDITION":f"WHERE Comid='{comid}' and Status is NULL"
         },True)
-        total = functions.sql.basics.count("JOBS",{
+        total = base.count("JOBS",{
             "CONDITION":f"WHERE Comid='{comid}'"
         },True)
 
-        spocs = functions.sql.basics.get("SPOC",{
+        spocs = base.get("SPOC",{
             "COLUMNS": "Name",
             "CONDITION": f"WHERE Comid = '{comid}'"
         },True)[1:]

@@ -1,4 +1,4 @@
-DATABASE_URL="postgresql://jay:1234@15.207.19.99:5432/talentov"
+DATABASE_URL="postgresql://jay:1234@3.110.151.202:5432/talentov"
 
 
 import os
