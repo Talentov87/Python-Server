@@ -89,9 +89,7 @@ def version():
 @app.get("/{path:path}")
 @app.post("/{path:path}")
 async def dynamic_route(path: str, request: Request):
-    authenticate(request)
-
-    
+    # authenticate(request)
     parts = path.split('/')
 
     if len(parts) < 2:
@@ -105,8 +103,10 @@ async def dynamic_route(path: str, request: Request):
     data = await request.json() if method == 'POST' else None
 
     result = call_function_from_path(package, function, method, data)
-
-    return Response(content=result, media_type="application/json")
+    if(isinstance(result,str) or isinstance(result,dict)):
+        return Response(content=result, media_type="application/json")
+    else:
+        return result
 
 
 def run(app,port):

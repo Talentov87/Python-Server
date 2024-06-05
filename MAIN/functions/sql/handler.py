@@ -7,13 +7,15 @@ import psycopg2
 # DATABASE_URL = "postgresql://jay:1234@3.110.151.202:5432/talentov"
 # DATABASE_URL = "postgresql://jay:1234@0.0.0.0:5432/talentov"
 
-DATABASE_URL_Talentov = "postgresql://jay:1234@3.110.151.202:5432/talentov"
+IP = "52.66.183.158"
+
+DATABASE_URL_Talentov = f"postgresql://jay:1234@{IP}:5432/talentov"
 # DATABASE_URL_Talentov = "postgresql://jay:1234@0.0.0.0:5432/talentov"
 
-DATABASE_URL_Virar = "postgresql://jay:1234@3.110.151.202:5432/virardb"
+DATABASE_URL_Virar = f"postgresql://jay:1234@{IP}:5432/virardb"
 # DATABASE_URL_Virar = "postgresql://jay:1234@0.0.0.0:5432/virardb"
 
-DATABASE_URL_Vellore = "postgresql://jay:1234@3.110.151.202:5432/vellore"
+DATABASE_URL_Vellore = f"postgresql://jay:1234@{IP}:5432/vellore"
 # DATABASE_URL_Vellore = "postgresql://jay:1234@0.0.0.0:5432/vellore"
 
 

@@ -6,6 +6,8 @@ from decimal import Decimal
 import time
 import uuid
 
+def helo(module):
+    return "Hi From "+module+" On "+str(get_current_epoch_time())
 
 def get_current_epoch_time():
     # Get the current time in seconds since the epoch
