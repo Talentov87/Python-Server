@@ -18,6 +18,9 @@ DATABASE_URL_Virar = f"postgresql://jay:1234@{IP}:5432/virardb"
 DATABASE_URL_Vellore = f"postgresql://jay:1234@{IP}:5432/vellore"
 # DATABASE_URL_Vellore = "postgresql://jay:1234@0.0.0.0:5432/vellore"
 
+DATABASE_URL_Pyserver = f"postgresql://jay:1234@{IP}:5432/pythonhotsingdb"
+# DATABASE_URL_Vellore = "postgresql://jay:1234@0.0.0.0:5432/vellore"
+
 
 import sys
 
@@ -30,6 +33,8 @@ elif(sys.PORT_NUMBER == 50087):
     connection_pool = psycopg2.connect(DATABASE_URL_Virar)
 elif(sys.PORT_NUMBER == 50088):
     connection_pool = psycopg2.connect(DATABASE_URL_Vellore)
+elif(sys.PORT_NUMBER == 7777):
+    connection_pool = psycopg2.connect(DATABASE_URL_Pyserver)
 else:
     pass
 

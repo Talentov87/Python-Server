@@ -52,12 +52,13 @@ def get_log():
 
 # Function to start the FastAPI server
 def start_server(whomServer="all"):
-    ServerPorts = {"vellore":"50088","virar":"50087","talentov":"5000"}
+    ServerPorts = {"vellore":"50088","virar":"50087","talentov":"5000","server_host":"7777"}
     try:
         if(whomServer == "all"):
             exe("uvicorn vellore:app --host 0.0.0.0 --port 50088 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
             exe("uvicorn virar:app --host 0.0.0.0 --port 50087 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
-            exe("uvicorn talentov:app --host 0.0.0.0 --port 5000 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")    
+            exe("uvicorn server_host:app --host 0.0.0.0 --port 7777 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")    
+            # exe("uvicorn talentov:app --host 0.0.0.0 --port 5000 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")    
         else:
             port = ServerPorts[whomServer]
             exe(f"uvicorn {whomServer}:app --host 0.0.0.0 --port {port} --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
@@ -79,7 +80,8 @@ def stop_server(whomServer="all"):
         if(whomServer == "all"):
             exe("sudo pkill -f 'uvicorn.*vellore:app'")
             exe("sudo pkill -f 'uvicorn.*virar:app'")
-            exe("sudo pkill -f 'uvicorn.*talentov:app'")
+            exe("sudo pkill -f 'uvicorn.*server_host:app'")
+            # exe("sudo pkill -f 'uvicorn.*talentov:app'")
         else:
             exe(f"sudo pkill -f 'uvicorn.*{whomServer}:app'")
     except:
@@ -118,7 +120,7 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-CHOOSING, TYPING_REPLY, TYPING_CHOICE = range(3)
+CHOOSING, LOGIN, TYPING_CHOICE = range(3)
 
 reply_keyboard = [
     ["Start Server","Restart","Stop Server"],
@@ -127,26 +129,51 @@ reply_keyboard = [
 
 markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True)
 
+login_markup = ReplyKeyboardMarkup([
+    ["Close"],
+], one_time_keyboard=True)
+
 def facts_to_str(user_data: Dict[str, str]) -> str:
     """Helper function for formatting the gathered user info."""
     facts = [f"{key} - {value}" for key, value in user_data.items()]
     return "\n".join(facts).join(["\n", "\n"])
 
 
+
+async def password_entered(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    text = update.message.text
+    if(text=="Jayaraj@87"):
+        context.user_data["is_logged_in"] = True    
+        await update.message.reply_text(
+            "Welcome, Jay!",
+            reply_markup=markup,
+        )
+        return CHOOSING
+    else:
+        await update.message.reply_text(
+            "Incorrect Password Try Again",
+            reply_markup=login_markup,
+        )
+        return LOGIN
+
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Start the conversation and ask user for input."""
     context.user_data["data"] = []
+    context.user_data["is_logged_in"] = False
     await update.message.reply_text(
-        "Welcome Jay!",
-        reply_markup=markup,
+        "Welcome, Enter The Password To Access the Server!",
+        reply_markup=login_markup,
     )
 
-    return CHOOSING
+    return LOGIN
 
 import requests
 
 # URLs to check
 urls = {
+    "server_host": "",
     "talentov": "https://jay-python-aws-server.in.net:5000/sql/talentov/root/get",
     "virar": "https://jay-python-aws-server.in.net:50087/sql/virar/root/get",
     "vellore": "https://jay-python-aws-server.in.net:50088/sql/vellore/root/get"
@@ -250,7 +277,7 @@ async def run_hold_restart_server(update: Update, context: ContextTypes.DEFAULT_
         await update.message.reply_text("Started!",reply_markup=markup)
     elif(text.split(' ')[0] == "Hold"):
         stop_server(text.split(' ')[1])
-        await update.message.edit_message_reply_markup("Stopped!",reply_markup=markup)
+        await update.message.reply_text("Stopped!",reply_markup=markup)
     elif(text.split(' ')[0] == "Restart"):
         stop_server(text.split(' ')[1])
         await asyncio.sleep(2)
@@ -276,7 +303,7 @@ async def start_stop_restart(update: Update, context: ContextTypes.DEFAULT_TYPE)
             "Please Choose the DB to Restart!",
             reply_markup = ReplyKeyboardMarkup([
                 ["Restart all", "Restart virar"],
-                ["Restart vellore", "Restart talentov"],
+                ["Restart vellore", "Restart server_host"],
             ], one_time_keyboard=True),
         )
     elif(text == "Start Server"):
@@ -284,7 +311,7 @@ async def start_stop_restart(update: Update, context: ContextTypes.DEFAULT_TYPE)
             "Please Choose the DB to Run!",
             reply_markup = ReplyKeyboardMarkup([
                 ["Run all", "Run virar"],
-                ["Run vellore", "Run talentov"],
+                ["Run vellore", "Run server_host"],
             ], one_time_keyboard=True),
         )
     elif(text == "Stop Server"):
@@ -292,7 +319,7 @@ async def start_stop_restart(update: Update, context: ContextTypes.DEFAULT_TYPE)
             "Please Choose the DB to Stop/Hold!",
             reply_markup = ReplyKeyboardMarkup([
                 ["Hold all", "Hold virar"],
-                ["Hold vellore", "Hold talentov"],
+                ["Hold vellore", "Hold server_host"],
             ], one_time_keyboard=True),
         )
 
@@ -300,6 +327,14 @@ async def start_stop_restart(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     return CHOOSING
 
+
+async def print_stored_data(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+    chats = context.user_data["data"]
+    await update.message.reply_text("Here you go!")
+    for chat in chats:
+        await update.message.reply_text(chat)
+    await update.message.reply_text("That's It!")
+    return CHOOSING
 
 async def normal_messages(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Ask the user for a description of a custom category."""
@@ -316,7 +351,7 @@ async def done(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     context.user_data
 
     await update.message.reply_text(
-        "Here is the data : "+(','.join(context.user_data['data']))+"",
+        "Thank You Bye!!!",
         reply_markup=ReplyKeyboardRemove(),
     )
 
@@ -354,16 +389,21 @@ def main() -> None:
         states={
             CHOOSING: [
                 MessageHandler(filters.Regex("^(Hello|hello|Helo|helo)$"), hello),
-                MessageHandler(filters.Regex("^(Done|done)$"), done),
+                MessageHandler(filters.Regex("^(Done|done|Close|close)$"), done),
                 MessageHandler(filters.Regex("^(Restart|Start Server|Stop Server)$"), start_stop_restart),
                 # MessageHandler(filters.Regex("^(Log|log)$"), log),
                 MessageHandler(filters.Regex("^(Bot Reboot)$"), bot_reboot),
                 MessageHandler(filters.Regex("^(Stats|stats)$"), stats),
+                MessageHandler(filters.Regex("^(Print|print)$"), print_stored_data),
                 MessageHandler(filters.Regex("^Run.*$"), run_hold_restart_server),
                 MessageHandler(filters.Regex("^Hold.*$"), run_hold_restart_server),
                 MessageHandler(filters.Regex("^Restart.*$"), run_hold_restart_server), 
                 MessageHandler(filters.Regex("^Progress.*$"), progress), 
                 MessageHandler(filters.Regex("^.*$"), normal_messages)
+            ],
+            LOGIN:[
+                MessageHandler(filters.Regex("^(Done|done|Close|close)$"), done),
+                MessageHandler(filters.Regex("^.*$"), password_entered)
             ]
         },
         fallbacks=[MessageHandler(filters.Regex("^Done$"), done)],
