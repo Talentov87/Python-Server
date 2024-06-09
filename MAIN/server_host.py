@@ -66,9 +66,9 @@ def call_function_from_path(module_path, function, method, data):
             function = function+"_api"
         
         if method == 'GET':
-            return Exe.run_python_with_restrictions(module_path,function+"_api",3,None)
+            return Exe.run_python_with_restrictions(module_path,function,3,None)
         elif method == 'POST':
-            return Exe.run_python_with_restrictions(module_path,function+"_api",3,data)
+            return Exe.run_python_with_restrictions(module_path,function,3,data)
         else:
             raise HTTPException(status_code=400, detail="Invalid method")
     except (ImportError, AttributeError) as e:
