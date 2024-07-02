@@ -58,7 +58,7 @@ def start_server(whomServer="all"):
             exe("uvicorn vellore:app --host 0.0.0.0 --port 50088 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
             exe("uvicorn virar:app --host 0.0.0.0 --port 50087 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
             exe("uvicorn server_host:app --host 0.0.0.0 --port 7777 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")    
-            # exe("uvicorn talentov:app --host 0.0.0.0 --port 5000 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")    
+            exe("uvicorn talentov:app --host 0.0.0.0 --port 5000 --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")    
         else:
             port = ServerPorts[whomServer]
             exe(f"uvicorn {whomServer}:app --host 0.0.0.0 --port {port} --ssl-keyfile /home/ubuntu/MAIN/privkey.pem --ssl-certfile /home/ubuntu/MAIN/fullchain.pem")
@@ -81,7 +81,7 @@ def stop_server(whomServer="all"):
             exe("sudo pkill -f 'uvicorn.*vellore:app'")
             exe("sudo pkill -f 'uvicorn.*virar:app'")
             exe("sudo pkill -f 'uvicorn.*server_host:app'")
-            # exe("sudo pkill -f 'uvicorn.*talentov:app'")
+            exe("sudo pkill -f 'uvicorn.*talentov:app'")
         else:
             exe(f"sudo pkill -f 'uvicorn.*{whomServer}:app'")
     except:
@@ -173,9 +173,9 @@ import requests
 
 # URLs to check
 urls = {
-    "server_host": "",
+    "server_host": "https://jay-python-aws-server.in.net:7777/sql/py_host/root/get",
     "talentov": "https://jay-python-aws-server.in.net:5000/sql/talentov/root/get",
-    "virar": "https://jay-python-aws-server.in.net:50087/sql/virar/root/get",
+    # "virar": "https://jay-python-aws-server.in.net:50087/sql/virar/root/get",
     "vellore": "https://jay-python-aws-server.in.net:50088/sql/vellore/root/get"
 }
 
@@ -302,7 +302,7 @@ async def start_stop_restart(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text(
             "Please Choose the DB to Restart!",
             reply_markup = ReplyKeyboardMarkup([
-                ["Restart all", "Restart virar"],
+                ["Restart all", "Restart talentov"],
                 ["Restart vellore", "Restart server_host"],
             ], one_time_keyboard=True),
         )
@@ -310,7 +310,7 @@ async def start_stop_restart(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text(
             "Please Choose the DB to Run!",
             reply_markup = ReplyKeyboardMarkup([
-                ["Run all", "Run virar"],
+                ["Run all", "Run talentov"],
                 ["Run vellore", "Run server_host"],
             ], one_time_keyboard=True),
         )
@@ -318,7 +318,7 @@ async def start_stop_restart(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text(
             "Please Choose the DB to Stop/Hold!",
             reply_markup = ReplyKeyboardMarkup([
-                ["Hold all", "Hold virar"],
+                ["Hold all", "Hold talentov"],
                 ["Hold vellore", "Hold server_host"],
             ], one_time_keyboard=True),
         )
